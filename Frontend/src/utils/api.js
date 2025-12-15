@@ -16,6 +16,7 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      config.headers['X-Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
@@ -73,10 +74,10 @@ export const applicationAPI = {
   applyForJob: (jobId, applicationData) =>
     api.post(`/applications/job/${jobId}`, applicationData),
 
-  getStudentApplications: () => 
+  getStudentApplications: () =>
     api.get('/applications/student/my-applications'),
 
-  getJobApplicants: (jobId) => 
+  getJobApplicants: (jobId) =>
     api.get(`/applications/job/${jobId}/applicants`),
 
   updateApplicationStatus: (applicationId, status) =>

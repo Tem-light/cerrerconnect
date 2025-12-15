@@ -13,12 +13,12 @@ export default defineConfig({
       // and PHP is served by Apache at:
       //   http://localhost/careerconnect/Backend
       '/api': {
-        target: 'http://localhost/careerconnect/Backend',
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
       },
       // Serve uploaded files from the same backend origin in dev
       '/uploads': {
-        target: 'http://localhost/careerconnect/Backend',
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
       },
     },

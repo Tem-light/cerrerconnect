@@ -2,7 +2,11 @@
 
 ## 🚀 Start the Application
 
-### Method 1: Windows (PowerShell)
+### Method 1: All-in-One (Recommended)
+1. Run `setup-db.bat` (once, to create DB).
+2. Run `start-dev.bat` to start both Backend and Frontend.
+
+### Method 2: Windows (PowerShell) - Legacy
 Run the provided PowerShell script:
 ```powershell
 .\start-dev.ps1

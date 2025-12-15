@@ -1,4 +1,6 @@
 RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 # Always route /api and /api/... to the API front controller.
 # (Even if /api/jobs matches an existing directory.)

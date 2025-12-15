@@ -60,8 +60,10 @@ const Register = () => {
         ...(role === 'student' ? studentData : recruiterData),
       };
 
-      const newUser = await authAPI.register(userData);
-      login(newUser);
+      const response = await authAPI.register(userData);
+      // Backend returns { token: '...', user: { ... } }
+      const authData = { ...response.user, token: response.token };
+      login(authData);
 
       if (role === 'student') {
         navigate('/student/dashboard');
@@ -90,11 +92,10 @@ const Register = () => {
           <button
             type="button"
             onClick={() => setRole('student')}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
-              role === 'student'
+            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${role === 'student'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
+              }`}
           >
             <GraduationCap className="w-5 h-5 inline-block mr-2" />
             Student
@@ -102,11 +103,10 @@ const Register = () => {
           <button
             type="button"
             onClick={() => setRole('recruiter')}
-            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
-              role === 'recruiter'
+            className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${role === 'recruiter'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
+              }`}
           >
             <Building className="w-5 h-5 inline-block mr-2" />
             Recruiter

@@ -1,0 +1,9 @@
+@echo off
+echo Starting PHP Backend at http://127.0.0.1:5000...
+start "CareerConnect Backend" php -S 127.0.0.1:5000 -t Backend Backend/index.php
+
+echo Starting Vite Frontend...
+cd Frontend
+start "CareerConnect Frontend" npm run dev
+
+echo Both servers are starting...

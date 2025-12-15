@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { jobAPI, applicationAPI } from '../../utils/api';
+import { jobAPI, applicationAPI, statsAPI } from '../../utils/api';
 import Sidebar from '../../components/Sidebar';
 import Loader from '../../components/Loader';
 import { Briefcase, FileText, TrendingUp, GraduationCap } from 'lucide-react';
@@ -23,18 +23,14 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [jobs, applications] = await Promise.all([
+      const [jobs, statsData] = await Promise.all([
         jobAPI.getAllJobs(),
-        applicationAPI.getStudentApplications(),
+        statsAPI.getStudentStats(),
       ]);
 
       setRecentJobs(jobs.slice(0, 3));
-      setStats({
-        totalJobs: jobs.length,
-        appliedJobs: applications.length,
-        pendingApplications: applications.filter((app) => app.status === 'pending').length,
-        acceptedApplications: applications.filter((app) => app.status === 'accepted').length,
-      });
+      // statsData structure from backend: { totalJobs, appliedJobs, pendingApplications, acceptedApplications }
+      setStats(statsData);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {

@@ -25,10 +25,13 @@ const Login = () => {
     setError('');
 
     try {
-      const userData = await authAPI.login(formData.email, formData.password);
-      login(userData);
+      const response = await authAPI.login(formData.email, formData.password);
+      // Backend returns { token: '...', user: { ... } }
+      // We want to store { ...user, token } in AuthContext
+      const authData = { ...response.user, token: response.token };
+      login(authData);
 
-      switch (userData.role) {
+      switch (response.user.role) {
         case 'student':
           navigate('/student/dashboard');
           break;

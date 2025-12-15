@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 import ProtectedRoute from '../components/ProtectedRoute';
@@ -27,6 +27,7 @@ import AdminUsers from '../pages/admin/Users';
 
 const AppRoutes = () => {
   const { user } = useAuth();
+  const location = useLocation();
 
   const getDefaultRoute = () => {
     if (!user) return '/';
@@ -44,7 +45,7 @@ const AppRoutes = () => {
 
   return (
     <>
-      {!['/login', '/register'].includes(window.location.pathname) && <Navbar />}
+      {!['/login', '/register'].includes(location.pathname) && <Navbar />}
       <Routes>
         <Route
           path="/"
