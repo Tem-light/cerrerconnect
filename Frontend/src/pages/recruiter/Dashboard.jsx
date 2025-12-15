@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const recruiterNotApproved = user?.role === 'recruiter' && user?.approved === false;
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalJobs: 0,
@@ -18,6 +19,10 @@ const Dashboard = () => {
   const [recentJobs, setRecentJobs] = useState([]);
 
   useEffect(() => {
+    if (recruiterNotApproved) {
+      setLoading(false);
+      return;
+    }
     fetchDashboardData();
   }, []);
 
@@ -43,6 +48,22 @@ const Dashboard = () => {
 
   if (loading) {
     return <Loader fullScreen />;
+  }
+
+  if (recruiterNotApproved) {
+    return (
+      <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Sidebar />
+        <div className="flex-1 p-8">
+          <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Pending Approval</h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Your recruiter account is pending admin approval. Once approved, you’ll be able to post and manage jobs.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -159,19 +180,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-md p-8 text-white">
-            <h2 className="text-2xl font-bold mb-4">Find Top Talent</h2>
-            <p className="mb-6">
-              Post new job openings and connect with qualified candidates looking for
-              opportunities.
-            </p>
-            <Link
-              to="/recruiter/post-job"
-              className="inline-block bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Post a New Job
-            </Link>
-          </div>
+          
         </div>
       </div>
     </div>

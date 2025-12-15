@@ -11,16 +11,12 @@ function Assert-Command($name) {
 Assert-Command 'php'
 Assert-Command 'npm'
 
-Write-Host "Starting Career Connect (PHP backend + Vite frontend)..."
-Write-Host "Backend: http://localhost:5000"
-Write-Host "Frontend: http://localhost:5173"
-
-# Start backend in a new PowerShell window
-Start-Process powershell -WorkingDirectory $root -ArgumentList @(
-  '-NoExit',
-  '-Command',
-  "php -S localhost:5000 -t `"$root\server-php\public`" `"$root\server-php\router.php`""
-)
+Write-Host "Starting Career Connect (XAMPP backend + Vite frontend)..."
+Write-Host "Backend (Apache/PHP): http://localhost/careerconnect/Backend/api"
+Write-Host "Frontend (Vite): http://localhost:5173"
+Write-Host ""
+Write-Host "IMPORTANT: Start Apache + MySQL from the XAMPP Control Panel first."
+Write-Host ""
 
 # Start frontend in a new PowerShell window
 Start-Process powershell -WorkingDirectory $root -ArgumentList @(
@@ -29,5 +25,5 @@ Start-Process powershell -WorkingDirectory $root -ArgumentList @(
   'npm run dev'
 )
 
-Write-Host "Two terminal windows should open (backend + frontend)."
-Write-Host "If they do not, run the commands from QUICK-START.md manually."
+Write-Host "One terminal window should open (frontend)."
+Write-Host "Backend is served by XAMPP (no separate PHP dev server needed)."

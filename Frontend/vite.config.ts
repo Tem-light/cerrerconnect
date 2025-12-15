@@ -9,13 +9,16 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      // In XAMPP, this repo lives under htdocs/careerconnect
+      // and PHP is served by Apache at:
+      //   http://localhost/careerconnect/Backend
       '/api': {
-        target: 'http://localhost/careerconnect-backend/Backend/',
+        target: 'http://localhost/careerconnect/Backend',
         changeOrigin: true,
       },
-      // Proxy uploads so images like /uploads/avatars/... load under the same origin in dev
+      // Serve uploaded files from the same backend origin in dev
       '/uploads': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost/careerconnect/Backend',
         changeOrigin: true,
       },
     },

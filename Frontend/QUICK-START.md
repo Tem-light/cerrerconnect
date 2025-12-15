@@ -10,12 +10,13 @@ Run the provided PowerShell script:
 
 ### Method 2: Manual startup
 
-**Terminal 1 - Backend (PHP on port 5000):**
-```bash
-php -S localhost:5000 -t server-php/public server-php/router.php
-```
+**Step 1 - Backend (XAMPP):**
+1. Open XAMPP Control Panel
+2. Start **Apache** + **MySQL**
+3. Confirm API health:
+   - http://localhost/careerconnect/Backend/api
 
-**Terminal 2 - Frontend (Vite on port 5173):**
+**Step 2 - Frontend (Vite on port 5173):**
 ```bash
 npm run dev
 ```
@@ -25,7 +26,7 @@ npm run dev
 - [x] Node.js installed
 - [x] Frontend dependencies installed (`npm install`)
 - [x] PHP 8+ installed
-- [ ] MySQL running + schema applied (`server-php/sql/schema.sql`)
+- [ ] MySQL running + schema applied (`Backend/sql/schema.sql`)
 
 ## 🔌 Connection Status
 
@@ -37,8 +38,8 @@ The frontend and backend are now connected:
 
 ## 🧪 Test the Connection
 
-1. Start MySQL and apply the schema (`server-php/sql/schema.sql`).
-2. Start backend: `php -S localhost:5000 -t server-php/public server-php/router.php`
+1. Start MySQL and apply the schema (`Backend/sql/schema.sql`).
+2. Start backend: Apache serves it automatically from XAMPP
 3. Start frontend: `npm run dev`
 4. Visit: http://localhost:5173
 5. Try registering or logging in
@@ -46,8 +47,8 @@ The frontend and backend are now connected:
 ## 📍 Important URLs
 
 - Frontend: http://localhost:5173
-- Backend API: http://localhost:5000
-- Backend Health Check: http://localhost:5000/
+- Backend API: http://localhost/careerconnect/Backend/api
+- Backend Health Check: http://localhost/careerconnect/Backend/api
 
 ## 🔑 Default Test Users
 
@@ -57,7 +58,7 @@ You'll need to register new users as the database is empty initially.
 
 1. **vite.config.ts**: Added proxy to forward API calls to backend
 2. **src/utils/api.js**: Uses real API calls (no mock data)
-3. **server-php/.env**: Backend environment configuration
+3. **Backend/.env**: Backend environment configuration
 4. **PHP backend**: Implements `/api/*` routes consumed by the frontend
 
 ## 📚 Next Steps

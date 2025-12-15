@@ -9,6 +9,9 @@ import { Briefcase, MapPin, DollarSign, FileText, Plus, X, Upload } from 'lucide
 const PostJob = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const userId = user?.id || user?._id;
+  const recruiterNotApproved = user?.role === 'recruiter' && user?.approved === false;
   const [formData, setFormData] = useState({
     title: '',
     company: '',
@@ -47,6 +50,16 @@ const PostJob = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!userId) {
+      setToast({ message: 'Please log in again', type: 'error' });
+      return;
+    }
+
+    if (recruiterNotApproved) {
+      setToast({ message: 'Your recruiter account is not approved yet.', type: 'warning' });
+      return;
+    }
+
     if (requirements.length === 0) {
       setToast({ message: 'Please add at least one requirement', type: 'warning' });
       return;
@@ -66,7 +79,12 @@ const PostJob = () => {
       }, 1500);
     } catch (error) {
       console.error('Job creation failed:', error);
-      setToast({ message: 'Failed to post job', type: 'error' });
+      const msg =
+        error?.message ||
+        error?.data?.message ||
+        error?.response?.data?.message ||
+        'Failed to post job';
+      setToast({ message: msg, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -83,6 +101,12 @@ const PostJob = () => {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+            {recruiterNotApproved && (
+              <div className="mb-6 p-4 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-800">
+                Your recruiter account is pending approval. You can view the dashboard, but you cannot post jobs until an admin approves you.
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -311,10 +335,10 @@ const PostJob = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || recruiterNotApproved}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-blue-400"
                 >
-                  {loading ? 'Posting...' : 'Post Job'}
+                  {loading ? 'Posting...' : recruiterNotApproved ? 'Pending Approval' : 'Post Job'}
                 </button>
               </div>
             </form>

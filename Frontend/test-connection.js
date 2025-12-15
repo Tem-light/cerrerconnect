@@ -4,7 +4,7 @@ const testConnection = async () => {
   console.log('Testing backend connection...');
 
   try {
-    const response = await axios.get('http://localhost:5000/');
+    const response = await axios.get('http://localhost/careerconnect/Backend/api');
     console.log('✓ Backend is running!');
     console.log('Response:', response.data);
     return true;

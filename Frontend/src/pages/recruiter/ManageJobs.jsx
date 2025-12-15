@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { jobAPI } from '../../utils/api';
 import Sidebar from '../../components/Sidebar';
-import JobCard from '../../components/JobCard';
 import Modal from '../../components/Modal';
 import Toast from '../../components/Toast';
 import Loader from '../../components/Loader';
@@ -11,6 +10,8 @@ import { Edit, Trash2, Users } from 'lucide-react';
 
 const ManageJobs = () => {
   const { user } = useAuth();
+  const userId = user?.id || user?._id;
+  const recruiterNotApproved = user?.role === 'recruiter' && user?.approved === false;
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,17 +41,40 @@ const ManageJobs = () => {
 
   const [toast, setToast] = useState(null);
 
+  const [newRequirement, setNewRequirement] = useState('');
+
+  const addRequirement = () => {
+    const req = newRequirement.trim();
+    if (!req) return;
+    if (editForm.requirements.includes(req)) return;
+    setEditForm((prev) => ({ ...prev, requirements: [...prev.requirements, req] }));
+    setNewRequirement('');
+  };
+
+  const removeRequirement = (reqToRemove) => {
+    setEditForm((prev) => ({
+      ...prev,
+      requirements: prev.requirements.filter((r) => r !== reqToRemove),
+    }));
+  };
+
   useEffect(() => {
+    if (recruiterNotApproved) {
+      setLoading(false);
+      return;
+    }
     fetchJobs();
   }, []);
 
   const fetchJobs = async () => {
     try {
-      const data = await jobAPI.getRecruiterJobs(user.id);
+      if (!userId) throw new Error('Please log in again');
+      const data = await jobAPI.getRecruiterJobs();
       setJobs(data);
     } catch (error) {
       console.error('Error fetching jobs:', error);
-      setToast({ message: 'Failed to load jobs', type: 'error' });
+      const msg = error?.message || error?.data?.message || 'Failed to load jobs';
+      setToast({ message: msg, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -73,6 +97,7 @@ const ManageJobs = () => {
 
   // Open Edit Modal
   const handleEdit = (job) => {
+    setNewRequirement('');
     setEditForm({
       title: job.title,
       company: job.company,
@@ -101,12 +126,20 @@ const ManageJobs = () => {
   const handleUpdate = async () => {
     setUpdating(true);
     try {
-      const updatedJob = await jobAPI.updateJob(editModal._id, editForm);
-      setJobs(jobs.map((job) => (job._id === editModal._id ? updatedJob : job)));
+      const jobId = editModal?._id || editModal?.id;
+      if (!jobId) throw new Error('Invalid job');
+
+      if (!Array.isArray(editForm.requirements) || editForm.requirements.length === 0) {
+        throw new Error('Please add at least one requirement');
+      }
+
+      const updatedJob = await jobAPI.updateJob(jobId, editForm);
+      setJobs(jobs.map((job) => ((job._id || job.id) === jobId ? updatedJob : job)));
       setToast({ message: 'Job updated successfully', type: 'success' });
       setEditModal(null);
     } catch (error) {
-      setToast({ message: 'Failed to update job', type: 'error' });
+      const msg = error?.message || error?.data?.message || 'Failed to update job';
+      setToast({ message: msg, type: 'error' });
     } finally {
       setUpdating(false);
     }
@@ -114,6 +147,22 @@ const ManageJobs = () => {
 
   if (loading) {
     return <Loader fullScreen />;
+  }
+
+  if (recruiterNotApproved) {
+    return (
+      <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Sidebar />
+        <div className="flex-1 p-8">
+          <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Pending Approval</h1>
+            <p className="text-gray-600 dark:text-gray-300">
+              Your recruiter account is pending admin approval. You won’t be able to post or manage jobs until you’re approved.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -181,7 +230,7 @@ const ManageJobs = () => {
 
                   <div className="flex gap-3">
                     <Link
-                      to={`/recruiter/applicants/${job._id}`}
+                      to={`/recruiter/applicants/${job._id || job.id}`}
                       className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                     >
                       <Users className="w-4 h-4" />
@@ -273,6 +322,58 @@ const ManageJobs = () => {
                   )}
                 </div>
               ))}
+
+              {/* Requirements */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Requirements
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={newRequirement}
+                    onChange={(e) => setNewRequirement(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addRequirement();
+                      }
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                    placeholder="e.g., React, SQL, Communication"
+                  />
+                  <button
+                    type="button"
+                    onClick={addRequirement}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(editForm.requirements || []).map((req) => (
+                    <span
+                      key={req}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-100 rounded-full text-xs font-medium flex items-center gap-2"
+                    >
+                      {req}
+                      <button
+                        type="button"
+                        onClick={() => removeRequirement(req)}
+                        className="text-gray-500 hover:text-gray-800 dark:hover:text-white"
+                        aria-label="Remove requirement"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  {(editForm.requirements || []).length === 0 && (
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Add at least one requirement.
+                    </span>
+                  )}
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

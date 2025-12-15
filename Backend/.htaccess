@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Always route /api and /api/... to the API front controller.
+# (Even if /api/jobs matches an existing directory.)
+RewriteRule ^api/?$ api/index.php [L,QSA]
+RewriteRule ^api/.*$ api/index.php [L,QSA]
+
+# If the requested path is an existing file or directory, serve it normally.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]

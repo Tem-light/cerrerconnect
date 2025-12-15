@@ -1,24 +1,19 @@
 <?php
-require_once __DIR__ . "/../helpers/response.php";
-require_once __DIR__ . "/../config/jwt.php";
+require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../helpers/jwt.php';
 
-$headers = getallheaders();
+$headers = function_exists('getallheaders') ? getallheaders() : [];
+$auth = $headers['Authorization'] ?? $headers['authorization'] ?? null;
 
-if (!isset($headers["Authorization"])) {
-    jsonResponse(["message" => "Unauthorized"], 401);
+if (!$auth) {
+    jsonResponse(['message' => 'Unauthorized'], 401);
 }
 
-$token = str_replace("Bearer ", "", $headers["Authorization"]);
-$parts = explode(".", $token);
+$token = preg_replace('/^Bearer\s+/i', '', $auth);
+$payload = jwt_verify($token);
 
-if (count($parts) !== 2) {
-    jsonResponse(["message" => "Invalid token"], 401);
+if (!$payload) {
+    jsonResponse(['message' => 'Invalid or expired token'], 401);
 }
 
-$payload = json_decode(base64_decode($parts[0]), true);
-
-if (!$payload || $payload["exp"] < time()) {
-    jsonResponse(["message" => "Token expired"], 401);
-}
-
-$_REQUEST["user"] = $payload;
+$_REQUEST['user'] = $payload;

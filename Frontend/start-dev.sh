@@ -5,11 +5,8 @@ echo "Career Connect - Development Setup"
 echo "================================"
 echo ""
 
-echo "Step 1: Starting Backend Server (PHP, Port 5000)..."
-php -S localhost:5000 -t server-php/public server-php/router.php &
-BACKEND_PID=$!
-
-sleep 1
+echo "Step 1: Start Apache + MySQL in XAMPP"
+echo "Backend API should be available at: http://localhost/careerconnect/Backend/api"
 
 echo ""
 echo "Step 2: Starting Frontend Server (Vite, Port 5173)..."

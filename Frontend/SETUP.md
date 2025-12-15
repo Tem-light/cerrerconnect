@@ -3,11 +3,11 @@
 ## Architecture Overview
 This is a React + Vite frontend with a **core PHP + MySQL** backend:
 - **Frontend**: React + Vite + TailwindCSS (port 5173)
-- **Backend**: Core PHP (no framework) + MySQL + JWT Authentication (port 5000)
+- **Backend**: Core PHP (no framework) + MySQL + JWT Authentication (served by XAMPP Apache)
 - **Proxy**: Vite dev server proxies `/api` and `/uploads` requests to the backend
 ## Prerequisites
 - Node.js (v18 or higher) for the frontend
-- PHP 8.0+ (for the backend dev server)
+- PHP (provided by XAMPP) or PHP 8.0+ if you want to run PHP outside XAMPP
 - MySQL 8+ (or MariaDB 10.6+)
 - npm
 
@@ -25,37 +25,28 @@ No npm install is required for the PHP backend.
 
 ### 2. Configure Environment Variables
 
-#### Backend (`server-php/.env`):
-1. Copy `server-php/.env.example` to `server-php/.env`.
+#### Backend (`Backend/.env`):
+1. Copy `Backend/.env.example` to `Backend/.env`.
 2. Set your MySQL connection values and `JWT_SECRET`.
 
 ### 3. Create the MySQL schema
-Run `server-php/sql/schema.sql` against your MySQL instance (e.g. using MySQL Workbench, phpMyAdmin, or the `mysql` CLI).
+Run `Backend/sql/schema.sql` against your MySQL instance (e.g. using MySQL Workbench, phpMyAdmin, or the `mysql` CLI).
 
 ### 4. Run the Application
 
-#### Option 1: Run Both Servers Separately
+### 4. Run the Application
 
-**Terminal 1 - Backend (PHP):**
-```bash
-php -S localhost:5000 -t server-php/public server-php/router.php
-```
-Backend will run on http://localhost:5000
+**Step 1 - Backend (XAMPP):**
+1. Start Apache + MySQL in XAMPP Control Panel
+2. Import `Backend/sql/schema.sql`
+3. Confirm API health:
+   - http://localhost/careerconnect/Backend/api
 
-**Terminal 2 - Frontend:**
+**Step 2 - Frontend:**
 ```bash
 npm run dev
 ```
 Frontend will run on http://localhost:5173
-
-#### Option 2: Test Backend Only
-```bash
-php -S localhost:5000 -t server-php/public server-php/router.php
-```
-Then visit http://localhost:5000 in your browser. You should see:
-```json
-{"message": "Career Connect API is running"}
-```
 
 ## Testing the Connection
 
@@ -102,12 +93,12 @@ Then visit http://localhost:5000 in your browser. You should see:
 
 ```
 career-connect/
-├── server-php/             # Backend (Core PHP + MySQL)
-│   ├── public/            # Document root (index.php, uploads)
-│   ├── src/               # PHP source (router + handlers)
-│   ├── sql/               # MySQL schema
-│   ├── .env.example       # Example environment variables
-│   └── router.php         # PHP built-in server router
+├── Backend/                # Backend (Core PHP + MySQL)
+│   ├── api/                # API front controller + handlers
+│   ├── config/             # DB/JWT config
+│   ├── sql/                # MySQL schema
+│   ├── uploads/            # Uploaded files (avatars/resumes)
+│   └── .htaccess           # Apache routing for /api/*
 │
 ├── src/                   # Frontend (React + Vite)
 │   ├── components/        # Reusable components
@@ -132,18 +123,18 @@ The application supports three user roles:
 
 ### Backend won't start:
 - Check if port 5000 is available
-- Verify `server-php/.env` exists and MySQL credentials are correct
-- Ensure the MySQL schema has been applied (`server-php/sql/schema.sql`)
+- Verify `Backend/.env` exists and MySQL credentials are correct
+- Ensure the MySQL schema has been applied (`Backend/sql/schema.sql`)
 
 ### Frontend won't connect to backend:
-- Ensure backend is running on port 5000
+- Ensure Apache is running in XAMPP (Backend is served at `/careerconnect/Backend`)
 - Check vite.config.ts has correct proxy configuration
 - Clear browser cache and restart dev server
 
 ### Database connection errors:
 - Ensure MySQL is running and reachable
-- Check DB settings in `server-php/.env`
-- Confirm the database and tables exist (run `server-php/sql/schema.sql`)
+- Check DB settings in `Backend/.env`
+- Confirm the database and tables exist (run `Backend/sql/schema.sql`)
 
 ## Production Build
 
@@ -160,4 +151,4 @@ npm run build
 - The frontend now uses real API calls instead of mock data
 - JWT tokens are stored in localStorage for authentication
 - CORS is enabled on the backend for cross-origin requests
-- The Vite proxy forwards all `/api/*` requests to `http://localhost:5000`
+- The Vite proxy forwards all `/api/*` requests to `http://localhost/careerconnect/Backend`
